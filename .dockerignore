@@ -1,0 +1,28 @@
+# Node modules
+node_modules
+**/node_modules
+
+# Logs
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+pnpm-debug.log
+
+# Build output
+dist
+build
+
+# Environment variables
+.env
+
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# IDE/editor settings
+.vscode
+.idea
+*.swp
+
+# Prisma files you don't want in the container
+prisma/dev.db
