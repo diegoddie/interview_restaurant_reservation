@@ -58,9 +58,21 @@ These instructions will get you a copy of the project up and running on your loc
     This command will start the PostgreSQL database and the API application containers.
 
 4.  **Apply Database Migrations:**
-    Once the containers are running, run DB migrations 
+    Important: To run Prisma migrations, you need to execute the command inside the running API container, because the DATABASE_URL in .env points to the database service by its Docker hostname (postgres).
+
+    To enter the container’s shell, run:
     ```bash
-    npx prisma migrate dev --name initial-setup
+        docker exec -it reservation-api sh
+    ```
+
+    Once inside the container, run the migration:
+    ```bash
+        npx prisma migrate dev --name initial-setup
+    ```
+
+    Exit the container
+    ```bash
+        exit
     ```
 
     The application API should now be running and accessible at `http://localhost:3000` (or the `PORT` you set in your `.env` file).
