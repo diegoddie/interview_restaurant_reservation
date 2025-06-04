@@ -45,17 +45,12 @@ These instructions will get you a copy of the project up and running on your loc
     *   Copy the following template into it. You should customize the `POSTGRES_PASSWORD`.
 
         ```env
-        # .env (Main configuration file - Add to .gitignore if it contains real secrets)
-
-        # Variables for PostgreSQL service AND for local connection to it
         POSTGRES_USER=postgres
         POSTGRES_PASSWORD=yourDevPassword123 # Important: Change this to your desired password
         POSTGRES_DB=restaurant_db
 
-        # Port for the API service (used by docker-compose and local execution)
         PORT=3000
 
-        # DATABASE_URL for LOCAL Prisma CLI and LOCAL `npm run dev` (connects to localhost)
         # This allows `npx prisma migrate dev` to work from your host machine against the Dockerized DB.
         DATABASE_URL="postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost:5432/${POSTGRES_DB}?schema=public"
         ```
