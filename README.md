@@ -31,50 +31,37 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Setup and Running the Application
 
-1.  **Clone the repository (if you haven't already):**
+1.  **Clone the repository:**
     ```bash
     git clone https://github.com/diegoddie/interview_restaurant_reservation.git
     cd interview_restaurant_reservation
     ```
 
-2.  **Create the `.env` file:**
-    This project uses a single `.env` file in the root directory to manage environment variables. This file provides settings for Docker Compose, for your local Prisma commands, and for running the app locally (if you choose to do so outside Docker).
-    **Important:** This `.env` file should NOT be committed to Git if it contains sensitive passwords. Please ensure it's listed in your `.gitignore` file.
+2.  **Create a `.env` file at the root of the project:**
+     Make sure to add .env to your .gitignore.
 
-    *   Create a new file named `.env` in the root directory of the project.
-    *   Copy the following template into it. You should customize the `POSTGRES_PASSWORD`.
-
-        ```env
+    ```env
         POSTGRES_USER=postgres
-        POSTGRES_PASSWORD=yourDevPassword123 # Important: Change this to your desired password
+        POSTGRES_PASSWORD=yourDevPassword123
         POSTGRES_DB=restaurant_db
-
         PORT=3000
+        DATABASE_URL=postgresql://postgres:yourDevPassword123@postgres:5432/restaurant_db+
+    ```
 
-        # This allows `npx prisma migrate dev` to work from your host machine against the Dockerized DB.
-        DATABASE_URL="postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost:5432/${POSTGRES_DB}?schema=public"
-        ```
-        *How this works:*
-        *   `docker-compose.yml` will read `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`, and `PORT` from this file to configure the services.
-        *   When you run Prisma commands like `npx prisma migrate dev` from your local machine, Prisma will use the `DATABASE_URL` from this file (which correctly points to `localhost`).
-        *   The `api` service *inside Docker* gets its `DATABASE_URL` specially constructed within `docker-compose.yml` to point to the `postgres` service name, using the same user/password/db name from this `.env` file.
 
 3.  **Build and Run with Docker Compose:**
     Open your terminal in the project's root directory and run:
     ```bash
     docker-compose up --build -d
     ```
-    *   `--build`: This tells Docker Compose to build the application image.
-    *   `-d`: This runs the containers in the background.
 
     This command will start the PostgreSQL database and the API application containers.
 
 4.  **Apply Database Migrations:**
-    Once the containers are running (especially the database), set up the database schema. Open a new terminal window in the project root and run:
+    Once the containers are running, run DB migrations 
     ```bash
     npx prisma migrate dev --name initial-setup
     ```
-    *   This command uses Prisma (a dev dependency) and the `DATABASE_URL` from your `.env` file to connect to the PostgreSQL database running in Docker (via `localhost:5432`) and applies the schema.
 
     The application API should now be running and accessible at `http://localhost:3000` (or the `PORT` you set in your `.env` file).
 

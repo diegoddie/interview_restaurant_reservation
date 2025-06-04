@@ -1,11 +1,7 @@
 import { Request, Response } from 'express';
 import { prisma } from '../lib/prisma';
 import { z } from 'zod';
-
-const userSchema = z.object({
-  name: z.string().min(1),
-  email: z.string().email(),
-});
+import { userSchema } from '../lib/zod';
 
 export const createUser = async (req: Request, res: Response) => {
     try {

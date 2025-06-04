@@ -10,17 +10,18 @@ COPY package*.json ./
 # Install dependencies
 RUN npm install
 
-COPY prisma ./prisma 
-RUN npx prisma generate 
+# Copy Prisma schema and generate client
+COPY prisma ./prisma
+RUN npx prisma generate
 
-# Copy source code
+# Copy source code (after prisma so Docker cache works better)
 COPY . .
 
 # Build TypeScript
 RUN npm run build
 
-# Expose port (same as Express server)
+# Expose port for Express
 EXPOSE 3000
 
-# Run the app
+# Start app (real command is overridden by docker-compose)
 CMD ["node", "dist/main.js"]

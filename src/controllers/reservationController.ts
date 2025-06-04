@@ -29,7 +29,7 @@ export const createReservation = async (req: Request, res: Response) => {
 
     const hour = reservationDate.getHours();
     if (hour < OPEN_HOUR || hour >= CLOSE_HOUR) {
-      res.status(400).json({ error: 'Reservations allowed only between 19:00 and 23:00' });
+      res.status(400).json({ error: `Reservations allowed only between ${OPEN_HOUR}:00 and ${CLOSE_HOUR}:00` });
     }
 
     const reservationsAtThatTime = await prisma.reservation.findMany({
@@ -40,7 +40,10 @@ export const createReservation = async (req: Request, res: Response) => {
       res.status(409).json({ error: 'No available tables at this time' });
     }
 
+    // Create a Set of table numbers that are already reserved at the selected time
     const occupied = new Set(reservationsAtThatTime.map(r => r.tableNumber));
+
+    // Find the first available table number 
     const tableNumber = Array.from({ length: TOTAL_TABLES }, (_, i) => i + 1).find(t => !occupied.has(t));
 
     if (!tableNumber) {
@@ -63,6 +66,7 @@ export const createReservation = async (req: Request, res: Response) => {
 export const getReservations = async (req: Request, res: Response) => {
   try {
     const { from, to, page, limit } = querySchema.parse(req.query);
+
     const fromDate = new Date(from);
     const toDate = new Date(to);
 
@@ -77,16 +81,18 @@ export const getReservations = async (req: Request, res: Response) => {
       },
     });
 
+    // Calculate how many pages are needed for pagination
     const totalPages = Math.ceil(totalItems / limit);
 
+    // Get the reservations for the given date range
     const reservations = await prisma.reservation.findMany({
       where: {
         date: { gte: fromDate, lte: toDate },
       },
       orderBy: { date: 'asc' },
-      skip: (page - 1) * limit,
-      take: limit,
-      include: { user: true },
+      skip: (page - 1) * limit, // Skip items from previous pages
+      take: limit, // Take only the number of items for the current page
+      include: { user: true }, 
     });
 
     res.json({

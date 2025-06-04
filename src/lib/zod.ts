@@ -1,6 +1,11 @@
 import { z } from "zod";
 import { SEATS_PER_TABLE } from "./constants";
 
+export const userSchema = z.object({
+    name: z.string().min(1),
+    email: z.string().email(),
+});
+
 export const reservationSchema = z.object({
     email: z.string().email(),
     seats: z.number().int().min(1).max(SEATS_PER_TABLE),
