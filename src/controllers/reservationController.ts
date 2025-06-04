@@ -24,20 +24,32 @@ export const createReservation = async (req: Request, res: Response) => {
 
     const now = new Date();
     if (reservationDate < now) {
-      res.status(400).json({ error: 'Cannot make a reservation in the past' });
+        res.status(400).json({ error: 'Cannot make a reservation in the past' });
+        return;
     }
 
     const hour = reservationDate.getHours();
     if (hour < OPEN_HOUR || hour >= CLOSE_HOUR) {
-      res.status(400).json({ error: `Reservations allowed only between ${OPEN_HOUR}:00 and ${CLOSE_HOUR}:00` });
+        res.status(400).json({ error: `Reservations allowed only between ${OPEN_HOUR}:00 and ${CLOSE_HOUR}:00` });
+        return;
     }
 
     const reservationsAtThatTime = await prisma.reservation.findMany({
       where: { date: reservationDate },
     });
 
+    const userHasReservationAtThatTime = reservationsAtThatTime.some(
+        (r) => r.userId === user.id
+    );
+
+    if (userHasReservationAtThatTime) {
+        res.status(409).json({ error: 'User already has a reservation at this time' });
+        return;
+    }
+
     if (reservationsAtThatTime.length >= TOTAL_TABLES) {
-      res.status(409).json({ error: 'No available tables at this time' });
+        res.status(409).json({ error: 'No available tables at this time' });
+        return;
     }
 
     // Create a Set of table numbers that are already reserved at the selected time
@@ -47,7 +59,8 @@ export const createReservation = async (req: Request, res: Response) => {
     const tableNumber = Array.from({ length: TOTAL_TABLES }, (_, i) => i + 1).find(t => !occupied.has(t));
 
     if (!tableNumber) {
-      res.status(409).json({ error: 'No available table found' });
+        res.status(409).json({ error: 'No available table found' });
+        return;
     }
 
     const newReservation = await prisma.reservation.create({
