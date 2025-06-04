@@ -5,8 +5,10 @@ services:
     image: postgres:15
     restart: always
     container_name: reservation-db
-    env_file:
-      - .env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - '5432:5432'
     volumes:
@@ -17,10 +19,11 @@ services:
     container_name: reservation-api
     depends_on:
       - postgres
-    env_file:
-      - .env
+    environment:
+      DATABASE_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public"
+      PORT: ${PORT}
     ports:
-      - '3000:3000'
+      - '${PORT}:${PORT}'
     command: npm run start
 
 volumes:

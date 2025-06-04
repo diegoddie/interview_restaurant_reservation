@@ -41,22 +41,27 @@ These instructions will get you a copy of the project up and running on your loc
     **Important:** This `.env` file should NOT be committed to Git if it contains sensitive passwords. Please ensure it's listed in your `.gitignore` file.
 
     *   Create a new file named `.env` in the root directory of the project.
-    *   Copy the following template into it. You can customize the `POSTGRES_PASSWORD`.
+    *   Copy the following template into it. You should customize the `POSTGRES_PASSWORD`.
 
         ```env
         # .env (Main configuration file - Add to .gitignore if it contains real secrets)
 
         # Variables for PostgreSQL service AND for local connection to it
         POSTGRES_USER=postgres
-        POSTGRES_PASSWORD=yourDevPassword123 # Important: Choose a password or use this for dev
+        POSTGRES_PASSWORD=yourDevPassword123 # Important: Change this to your desired password
         POSTGRES_DB=restaurant_db
-        DATABASE_URL="postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost:5432/${POSTGRES_DB}?schema=public"
+
+        # Port for the API service (used by docker-compose and local execution)
         PORT=3000
+
+        # DATABASE_URL for LOCAL Prisma CLI and LOCAL `npm run dev` (connects to localhost)
+        # This allows `npx prisma migrate dev` to work from your host machine against the Dockerized DB.
+        DATABASE_URL="postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost:5432/${POSTGRES_DB}?schema=public"
         ```
         *How this works:*
-        *   `docker-compose.yml` will read `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB` from this file to configure the services.
+        *   `docker-compose.yml` will read `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`, and `PORT` from this file to configure the services.
         *   When you run Prisma commands like `npx prisma migrate dev` from your local machine, Prisma will use the `DATABASE_URL` from this file (which correctly points to `localhost`).
-        *   The `api` service *inside Docker* gets its `DATABASE_URL` specially constructed within `docker-compose.yml` to point to the `postgres` service name.
+        *   The `api` service *inside Docker* gets its `DATABASE_URL` specially constructed within `docker-compose.yml` to point to the `postgres` service name, using the same user/password/db name from this `.env` file.
 
 3.  **Build and Run with Docker Compose:**
     Open your terminal in the project's root directory and run:
@@ -75,7 +80,7 @@ These instructions will get you a copy of the project up and running on your loc
     ```
     *   This command uses Prisma (a dev dependency) and the `DATABASE_URL` from your `.env` file to connect to the PostgreSQL database running in Docker (via `localhost:5432`) and applies the schema.
 
-    The application API should now be running and accessible at `http://localhost:3000` (or the `PORT` you set).
+    The application API should now be running and accessible at `http://localhost:3000` (or the `PORT` you set in your `.env` file).
 
 ### Stopping the Application
 
@@ -91,9 +96,14 @@ docker-compose down -v
 ## Testing the API
 
 You can test the API using any API client tool like Postman, Insomnia, or `curl`.
-The base URL for the API is `http://localhost:3000/api` (or `http://localhost:${PORT}/api`).
+The base URL for the API is `http://localhost:3000/api` (or `http://localhost:${PORT}/api` if you changed the `PORT` in `.env`).
 
 ### Available Endpoints:
+
+*   **`GET /`** (Root path)
+    *   A simple endpoint to check if the API is responsive.
+    *   Example: `GET http://localhost:3000/`
+    *   Expected Response: `{"message":"Restaurant Reservation API is running!"}` 
 
 **Users:**
 
@@ -112,14 +122,14 @@ The base URL for the API is `http://localhost:3000/api` (or `http://localhost:${
     *   Request Body (JSON):
         ```json
         {
-          "userId": 1,         
+          "email": "diego.dev@gmail.com",         
           "seats": 2,          
           "date": "2024-12-24T19:00:00.000Z" // ISO 8601 DateTime string (UTC for simplicity)
         }
         ```
 
 *   **`GET /api/reservations`** - Get a list of reservations within a date range.
-    *   Query Parameters: `from` (ISO DateTime), `to` (ISO DateTime), `page` (optional), `limit` (optional).
+    *   Query Parameters: `from` (ISO DateTime), `to` (ISO DateTime), `page` (optional, e.g., 1), `limit` (optional, e.g., 10).
     *   Example: `GET http://localhost:3000/api/reservations?from=2024-07-01T00:00:00Z&to=2024-07-31T23:59:59Z`
 
 *   **`DELETE /api/reservations/:id`** - Delete a reservation by its ID.
@@ -129,17 +139,19 @@ The base URL for the API is `http://localhost:3000/api` (or `http://localhost:${
 ## How It Was Built (Brief Overview)
 
 1.  **Project Setup:** Node.js with TypeScript.
-2.  **Database Schema:** Prisma ORM (`prisma/schema.prisma`) for `User` and `Reservation` models.
-3.  **API Controllers:** `userController.ts` and `reservationController.ts` for business logic, using Zod for validation.
-4.  **API Routes:** Express.js router (`src/routes/`).
-5.  **Server Configuration:** Main Express server in `src/main.ts`.
-6.  **Containerization:** `Dockerfile` for the app image, `docker-compose.yml` for services.
-7.  **Configuration:** A single `.env` file for environment variables, read by Docker Compose and locally by Prisma/Dotenv. Constants in `src/lib/constants.ts`.
+2.  **Database Schema:** Prisma ORM (`prisma/schema.prisma`) for `User` and `Reservation` models, including relations and constraints.
+3.  **API Controllers:** `userController.ts` and `reservationController.ts` handle the business logic for user and reservation management, using Zod for input validation.
+4.  **API Routes:** Express.js router (`src/routes/`) defines the HTTP endpoints and maps them to controller functions.
+5.  **Server Configuration:** The main Express server is set up in `src/main.ts`, including middleware for JSON parsing and route mounting.
+6.  **Containerization:** A `Dockerfile` defines the application image. `docker-compose.yml` orchestrates the `api` application service and the `postgres` database service.
+7.  **Configuration & Constants:** A single `.env` file at the project root manages environment variables. Business rule constants (like opening hours) are in `src/lib/constants.ts`.
 
 ## Further Potential Improvements (Nice-to-haves if time permitted)
 
-*   More detailed error responses and logging.
+*   More detailed and structured error responses.
+*   Comprehensive logging.
 *   Unit and integration tests.
-*   OpenAPI (Swagger) documentation.
+*   OpenAPI (Swagger) documentation for the API.
+*   More advanced validation rules based on business logic.
 
 Thank you for the opportunity to work on this challenge!

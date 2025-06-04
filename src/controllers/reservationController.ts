@@ -7,8 +7,17 @@ import { OPEN_HOUR, CLOSE_HOUR, TOTAL_TABLES } from '../lib/constants';
 
 export const createReservation = async (req: Request, res: Response) => {
   try {
-    const { userId, seats, date } = reservationSchema.parse(req.body);
+    const { email, seats, date } = reservationSchema.parse(req.body);
     const reservationDate = new Date(date);
+
+    const user = await prisma.user.findUnique({
+        where: { email },
+    });
+
+    if (!user) {
+        res.status(404).json({ error: 'User not found' });
+        return;
+    }
 
     // 🔄 Normalize the time to minute 00 (e.g., 19:32 → 19:00)
     reservationDate.setMinutes(0, 0, 0);
@@ -39,7 +48,7 @@ export const createReservation = async (req: Request, res: Response) => {
     }
 
     const newReservation = await prisma.reservation.create({
-      data: { userId, seats, date: reservationDate, tableNumber: tableNumber! },
+      data: { userId: user.id, seats, date: reservationDate, tableNumber: tableNumber! },
     });
 
     res.status(201).json(newReservation);
