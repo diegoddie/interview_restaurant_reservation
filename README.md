@@ -17,6 +17,7 @@ The restaurant is assumed to have 5 tables, each with 4 seats. Reservations are 
 *   **Prisma** as the ORM (Object-Relational Mapper) to interact with the PostgreSQL database.
 *   **Zod** for data validation (ensuring input data like emails, dates, etc., are correct).
 *   **Docker** and **Docker Compose** for containerizing the application and database, making it easy to set up and run anywhere.
+*   **Swagger** for creating an interactive documentation for APIs.
 
 ## Getting Started
 
@@ -93,6 +94,14 @@ To stop and remove the database volume (all data will be lost):
 docker-compose down -v
 ```
 
+## API Documentation (Swagger)
+
+This API includes interactive documentation using Swagger UI (OpenAPI). Once the application is running, you can access the API documentation in your browser at:
+
+*   **`http://localhost:3000/docs`** (or `http://localhost:${PORT}/docs` if you have configured a different `PORT` in your `.env` file).
+
+The documentation provides a list of all available endpoints, their expected request parameters, request bodies, and response schemas. You can also try out the API endpoints directly from the Swagger UI.
+
 ## Testing the API
 
 You can test the API using any API client tool like Postman, Insomnia, or `curl`.
@@ -135,6 +144,7 @@ The base URL for the API is `http://localhost:3000/api` (or `http://localhost:${
 *   **`DELETE /api/reservations/:id`** - Delete a reservation by its ID.
     *   Example: `DELETE http://localhost:3000/api/reservations/1`
 
+For a more interactive way to explore and test the endpoints, please use the API documentation available at `http://localhost:3000/docs`.
 
 ## How It Was Built (Brief Overview)
 
@@ -145,13 +155,6 @@ The base URL for the API is `http://localhost:3000/api` (or `http://localhost:${
 5.  **Server Configuration:** The main Express server is set up in `src/main.ts`, including middleware for JSON parsing and route mounting.
 6.  **Containerization:** A `Dockerfile` defines the application image. `docker-compose.yml` orchestrates the `api` application service and the `postgres` database service.
 7.  **Configuration & Constants:** A single `.env` file at the project root manages environment variables. Business rule constants (like opening hours) are in `src/lib/constants.ts`.
-
-## Further Potential Improvements (Nice-to-haves if time permitted)
-
-*   More detailed and structured error responses.
-*   Comprehensive logging.
-*   Unit and integration tests.
-*   OpenAPI (Swagger) documentation for the API.
-*   More advanced validation rules based on business logic.
+8.  **API Documentation:** Integrated Swagger UI using `swagger-jsdoc` and `swagger-ui-express` for live API documentation.
 
 Thank you for the opportunity to work on this challenge!
