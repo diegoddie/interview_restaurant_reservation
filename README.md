@@ -33,8 +33,8 @@ These instructions will get you a copy of the project up and running on your loc
 
 1.  **Clone the repository (if you haven't already):**
     ```bash
-    git clone <repository-url>
-    cd <repository-folder>
+    git clone https://github.com/diegoddie/interview_restaurant_reservation.git
+    cd interview_restaurant_reservation
     ```
 
 2.  **Create the `.env` file:**
