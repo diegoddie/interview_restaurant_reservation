@@ -6,7 +6,12 @@ import reservationsRoutes from './routes/reservations';
 dotenv.config();
 
 const app = express();
+
 app.use(express.json());
+
+app.get('/', (req, res) => {
+    res.json({ message: "pong" });
+});
 
 app.use('/api/users', usersRoutes);
 app.use('/api/reservations', reservationsRoutes);

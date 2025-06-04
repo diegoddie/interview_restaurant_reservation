@@ -75,7 +75,7 @@ These instructions will get you a copy of the project up and running on your loc
     ```
     *   This command uses Prisma (a dev dependency) and the `DATABASE_URL` from your `.env` file to connect to the PostgreSQL database running in Docker (via `localhost:5432`) and applies the schema.
 
-    The application API should now be running and accessible at `http://localhost:3000` (or the `API_PORT` you set).
+    The application API should now be running and accessible at `http://localhost:3000` (or the `PORT` you set).
 
 ### Stopping the Application
 
